@@ -10,7 +10,7 @@
 
 ### Clone
 
-- Clone this repo to your local machine using https://github.com/Maxwell6635/MyGeofencing/new/master
+- Clone this repo to your local machine using https://github.com/Maxwell6635/MyGeofencing.git
 
 ### Setup
 
