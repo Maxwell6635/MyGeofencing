@@ -1,6 +1,5 @@
-package com.android.raywenderlich.remindmethere.model
+package com.jackson.foo.mygeofencing.model
 
-import com.android.raywenderlich.remindmethere.model.Geometry
 import com.google.gson.annotations.SerializedName
 
 class PlaceResult {

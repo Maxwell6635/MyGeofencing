@@ -1,8 +1,8 @@
-package com.android.raywenderlich.remindmethere.model
+package com.jackson.foo.mygeofencing.model
 
 import com.google.gson.annotations.SerializedName
 
 class Geometry {
     @SerializedName("location")
-    var location : Location = Location()
+    var myLocation : MyLocation = MyLocation()
 }
