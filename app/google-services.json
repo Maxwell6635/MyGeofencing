@@ -1,0 +1,40 @@
+{
+  "project_info": {
+    "project_number": "928800731680",
+    "firebase_url": "https://my-geofencing-bcff5.firebaseio.com",
+    "project_id": "my-geofencing-bcff5",
+    "storage_bucket": "my-geofencing-bcff5.appspot.com"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:928800731680:android:be4a0b715fb24f1a",
+        "android_client_info": {
+          "package_name": "com.jackson.foo.mygeofencing"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "928800731680-bmopr6vk3p7n23mqau3cnu30tjogaki5.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyAPjlwKCzcNVo0qlCTtmUEUsqeh_91gtAE"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": [
+            {
+              "client_id": "928800731680-bmopr6vk3p7n23mqau3cnu30tjogaki5.apps.googleusercontent.com",
+              "client_type": 3
+            }
+          ]
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}

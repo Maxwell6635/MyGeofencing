@@ -47,19 +47,10 @@ class MyGeoRepository(private val context: Context) {
         }
     }
 
-    fun addAll(
-        myGeofencings: List<MyGeofencing>,
-        success: () -> Unit,
-        failure: (error: String) -> Unit
-    ) {
+    fun addAll(myGeofencings: List<MyGeofencing>, success: () -> Unit, failure: (error: String) -> Unit) {
         for (item in myGeofencings) {
             val geofence = buildGeofence(item)
-            if (geofence != null
-                && ContextCompat.checkSelfPermission(
-                    context,
-                    Manifest.permission.ACCESS_FINE_LOCATION
-                ) == PackageManager.PERMISSION_GRANTED
-            ) {
+            if (geofence != null && ContextCompat.checkSelfPermission(context, Manifest.permission.ACCESS_FINE_LOCATION) == PackageManager.PERMISSION_GRANTED) {
                 geofencingClient
                     .addGeofences(buildGeofencingRequest(geofence), geofencePendingIntent)
                     .addOnSuccessListener {

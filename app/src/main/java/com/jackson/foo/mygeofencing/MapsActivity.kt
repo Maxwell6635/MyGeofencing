@@ -85,6 +85,10 @@ class MapsActivity : BaseActivity(), OnMapReadyCallback, GoogleMap.OnMyLocationB
 
         locationManager = getSystemService(Context.LOCATION_SERVICE) as LocationManager
 
+    }
+
+    override fun onResume() {
+        super.onResume()
         if (ContextCompat.checkSelfPermission(
                 this,
                 Manifest.permission.ACCESS_FINE_LOCATION
@@ -249,7 +253,13 @@ class MapsActivity : BaseActivity(), OnMapReadyCallback, GoogleMap.OnMyLocationB
                     }
                     getRepository().addAll(petronasStationList, success = {
                         Snackbar.make(main, "Loaded Successfully", Snackbar.LENGTH_SHORT).show()
-                        showAllGeo()
+                        mMap.run {
+                            clear()
+                            for (myGeo in petronasStationList) {
+                                showReminderInMap(this@MapsActivity, this, myGeo)
+                            }
+                        }
+//                        showAllGeo()
                     }, failure = {
                         Snackbar.make(main, it, Snackbar.LENGTH_SHORT).show()
                     })
@@ -267,7 +277,7 @@ class MapsActivity : BaseActivity(), OnMapReadyCallback, GoogleMap.OnMyLocationB
     }
 
     private fun checkLocationEnabled() {
-        displayLocationSettingsRequest(this).addOnSuccessListener { locationSettingsResponse ->
+        displayLocationSettingsRequest(this).addOnSuccessListener {
             fusedLocationClient.lastLocation.addOnSuccessListener {
                 initialPetronasStation(MyLocation(it.latitude, it.longitude))
             }.addOnFailureListener {
