@@ -109,7 +109,7 @@ class MapsActivity : BaseActivity(), OnMapReadyCallback, GoogleMap.OnMyLocationB
             val reminder = getRepository().getLast()
             mMap.moveCamera(CameraUpdateFactory.newLatLngZoom(reminder?.latLng, 15f))
 
-            Snackbar.make(main, R.string.added_success, Snackbar.LENGTH_LONG).show()
+            Snackbar.make(main, R.string.added_success, Snackbar.LENGTH_SHORT).show()
         }
     }
 
@@ -181,10 +181,10 @@ class MapsActivity : BaseActivity(), OnMapReadyCallback, GoogleMap.OnMyLocationB
             myGeofencing,
             success = {
                 showAllGeo()
-                Snackbar.make(main, R.string.removed_success, Snackbar.LENGTH_LONG).show()
+                Snackbar.make(main, R.string.removed_success, Snackbar.LENGTH_SHORT).show()
             },
             failure = {
-                Snackbar.make(main, it, Snackbar.LENGTH_LONG).show()
+                Snackbar.make(main, it, Snackbar.LENGTH_SHORT).show()
             })
     }
 
@@ -234,7 +234,7 @@ class MapsActivity : BaseActivity(), OnMapReadyCallback, GoogleMap.OnMyLocationB
                     getRepository().removeAll(success = {
 
                     }, failure = {
-                        Snackbar.make(main, it, Snackbar.LENGTH_LONG).show()
+                        Snackbar.make(main, it, Snackbar.LENGTH_SHORT).show()
                     })
                     for (item in it.result) {
                         petronasStationList.add(
@@ -248,10 +248,10 @@ class MapsActivity : BaseActivity(), OnMapReadyCallback, GoogleMap.OnMyLocationB
                         )
                     }
                     getRepository().addAll(petronasStationList, success = {
-                        Snackbar.make(main, "Loaded Successfully", Snackbar.LENGTH_LONG).show()
+                        Snackbar.make(main, "Loaded Successfully", Snackbar.LENGTH_SHORT).show()
                         showAllGeo()
                     }, failure = {
-                        Snackbar.make(main, it, Snackbar.LENGTH_LONG).show()
+                        Snackbar.make(main, it, Snackbar.LENGTH_SHORT).show()
                     })
                 })
         )

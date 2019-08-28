@@ -64,13 +64,13 @@ class MyGeoRepository(private val context: Context) {
                     .addGeofences(buildGeofencingRequest(geofence), geofencePendingIntent)
                     .addOnSuccessListener {
                         saveAll(getAll() + item)
-                        success()
                     }
                     .addOnFailureListener {
                         failure(GeofenceErrorMessages.getErrorString(context, it))
                     }
             }
         }
+        success()
     }
 
     fun removeAll(

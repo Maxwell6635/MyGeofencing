@@ -18,9 +18,20 @@ android {
             targetCompatibility JavaVersion.VERSION_1_8
         }
     }
+
+    signingConfigs {
+        release {
+            storeFile file('../mykey')
+            storePassword "abcd1234"
+            keyAlias "mygeofencing"
+            keyPassword "abcd1234"
+        }
+    }
+
     buildTypes {
         release {
-            minifyEnabled false
+            minifyEnabled true
+            signingConfig signingConfigs.release
             proguardFiles getDefaultProguardFile('proguard-android-optimize.txt'), 'proguard-rules.pro'
         }
     }
