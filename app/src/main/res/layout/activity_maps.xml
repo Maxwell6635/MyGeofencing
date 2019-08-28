@@ -21,12 +21,12 @@
         android:orientation="vertical"
         app:layout_dodgeInsetEdges="bottom">
 
-<!--        <com.google.android.material.floatingactionbutton.FloatingActionButton-->
-<!--            android:id="@+id/newReminder"-->
-<!--            android:layout_width="wrap_content"-->
-<!--            android:layout_height="wrap_content"-->
-<!--            android:layout_margin="@dimen/fab_margin"-->
-<!--            app:srcCompat="@drawable/ic_baseline_add_24px" />-->
+        <com.google.android.material.floatingactionbutton.FloatingActionButton
+            android:id="@+id/fab_add_new"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_margin="@dimen/fab_margin"
+            app:srcCompat="@drawable/ic_baseline_add_24px" />
 
     </LinearLayout>
 

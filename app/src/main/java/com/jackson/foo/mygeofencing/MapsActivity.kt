@@ -1,6 +1,7 @@
 package com.jackson.foo.mygeofencing
 
 import android.Manifest
+import android.app.Activity
 import android.content.Context
 import android.content.Intent
 import android.content.IntentSender
@@ -8,10 +9,10 @@ import android.content.pm.PackageManager
 import android.location.Location
 import android.location.LocationManager
 import android.os.Bundle
+import android.view.View
+import androidx.appcompat.app.AlertDialog
 import androidx.core.app.ActivityCompat
 import androidx.core.content.ContextCompat
-import com.google.android.gms.common.ConnectionResult
-import com.google.android.gms.common.GoogleApiAvailability
 import com.google.android.gms.common.api.ResolvableApiException
 import com.google.android.gms.location.FusedLocationProviderClient
 import com.google.android.gms.location.LocationServices
@@ -50,7 +51,7 @@ class MapsActivity : BaseActivity(), OnMapReadyCallback, GoogleMap.OnMyLocationB
     companion object {
         private const val MY_LOCATION_REQUEST_CODE = 1
         private const val MY_PERMISSIONS_REQUEST_ACCESS_LOCATION = 1234
-        private const val PLAY_SERVICES_RESOLUTION_REQUEST = 9000;
+        private const val ADD_NEW_GEO_REQUEST_CODE = 2
         private const val EXTRA_LAT_LNG = "EXTRA_LAT_LNG"
 
         fun newIntent(context: Context, latLng: LatLng): Intent {
@@ -70,6 +71,18 @@ class MapsActivity : BaseActivity(), OnMapReadyCallback, GoogleMap.OnMyLocationB
             .findFragmentById(R.id.map) as SupportMapFragment
         mapFragment.getMapAsync(this)
 
+        fab_add_new.visibility = View.GONE
+        fab_add_new.setOnClickListener {
+            mMap.run {
+                val intent = AddNewGeoActivity.newIntent(
+                    this@MapsActivity,
+                    cameraPosition.target,
+                    cameraPosition.zoom
+                )
+                startActivityForResult(intent, ADD_NEW_GEO_REQUEST_CODE)
+            }
+        }
+
         locationManager = getSystemService(Context.LOCATION_SERVICE) as LocationManager
 
         if (ContextCompat.checkSelfPermission(
@@ -86,7 +99,6 @@ class MapsActivity : BaseActivity(), OnMapReadyCallback, GoogleMap.OnMyLocationB
         } else {
             displayLocationSettingsRequest(this).addOnSuccessListener { locationSettingsResponse ->
                 fusedLocationClient.lastLocation.addOnSuccessListener {
-                    it
                     initialPetronasStation(MyLocation(it.latitude, it.longitude))
                 }.addOnFailureListener {
                     initialPetronasStation(MyLocation(3.1138174, 101.7242323))
@@ -106,10 +118,15 @@ class MapsActivity : BaseActivity(), OnMapReadyCallback, GoogleMap.OnMyLocationB
         }
     }
 
-    override fun onResume() {
-        super.onResume()
-        if (checkPlayServices()) {
+    override fun onActivityResult(requestCode: Int, resultCode: Int, data: Intent?) {
+        super.onActivityResult(requestCode, resultCode, data)
+        if (requestCode == ADD_NEW_GEO_REQUEST_CODE && resultCode == Activity.RESULT_OK) {
+            showAllGeo()
 
+            val reminder = getRepository().getLast()
+            mMap.moveCamera(CameraUpdateFactory.newLatLngZoom(reminder?.latLng, 15f))
+
+            Snackbar.make(main, R.string.added_success, Snackbar.LENGTH_LONG).show()
         }
     }
 
@@ -146,18 +163,51 @@ class MapsActivity : BaseActivity(), OnMapReadyCallback, GoogleMap.OnMyLocationB
         mMap.animateCamera(CameraUpdateFactory.newLatLngZoom(latLng, 15f))
     }
 
-    override fun onMarkerClick(p0: Marker?): Boolean {
-        return false
+    override fun onMarkerClick(marker: Marker): Boolean {
+        val myGeofencing = getRepository().get(marker.tag as String)
+
+        if (myGeofencing != null) {
+            showRemoveAlert(myGeofencing)
+        }
+
+        return true
+    }
+
+    private fun showRemoveAlert(myGeofencing: MyGeofencing) {
+        val alertDialog = AlertDialog.Builder(this).create()
+        alertDialog.run {
+            setMessage(getString(R.string.removal_alert))
+            setButton(
+                AlertDialog.BUTTON_POSITIVE,
+                getString(R.string.removal_alert_positive)) { dialog, _ ->
+                removeMyGeo(myGeofencing)
+                dialog.dismiss()
+            }
+            setButton(
+                AlertDialog.BUTTON_NEGATIVE,
+                getString(R.string.removal_alert_negative)) { dialog, _ ->
+                dialog.dismiss()
+            }
+            show()
+        }
+    }
+
+    private fun removeMyGeo(myGeofencing: MyGeofencing) {
+        getRepository().remove(
+            myGeofencing,
+            success = {
+                showAllGeo()
+                Snackbar.make(main, R.string.removed_success, Snackbar.LENGTH_LONG).show()
+            },
+            failure = {
+                Snackbar.make(main, it, Snackbar.LENGTH_LONG).show()
+            })
     }
 
     private fun onMapAndPermissionReady() {
-        if (mMap != null && ContextCompat.checkSelfPermission(
-                this,
-                Manifest.permission.ACCESS_FINE_LOCATION
-            )
-            == PackageManager.PERMISSION_GRANTED
-        ) {
+        if (ContextCompat.checkSelfPermission(this, Manifest.permission.ACCESS_FINE_LOCATION) == PackageManager.PERMISSION_GRANTED) {
             mMap.isMyLocationEnabled = true
+            fab_add_new.visibility = View.VISIBLE
         }
 
         showAllGeo()
@@ -200,7 +250,7 @@ class MapsActivity : BaseActivity(), OnMapReadyCallback, GoogleMap.OnMyLocationB
                                     item.geometry.myLocation.lat,
                                     item.geometry.myLocation.lng
                                 ),
-                                radius = 100.0, message = item.name
+                                radius = 50.0, message = item.name
                             )
                         )
                     }
@@ -221,27 +271,6 @@ class MapsActivity : BaseActivity(), OnMapReadyCallback, GoogleMap.OnMyLocationB
                 showReminderInMap(this@MapsActivity, this, myGeo)
             }
         }
-    }
-
-    /**
-     * Check the device to make sure it has the Google Play Services APK. If
-     * it doesn't, display a dialog that allows users to download the APK from
-     * the Google Play Store or enable it in the device's system settings.
-     */
-    private fun checkPlayServices(): Boolean {
-        val apiAvailability = GoogleApiAvailability.getInstance()
-        val resultCode = apiAvailability.isGooglePlayServicesAvailable(this)
-        if (resultCode != ConnectionResult.SUCCESS) {
-            if (apiAvailability.isUserResolvableError(resultCode)) {
-                apiAvailability.getErrorDialog(this, resultCode, PLAY_SERVICES_RESOLUTION_REQUEST)
-                    .show()
-            } else {
-                //This device is not supported
-                finish()
-            }
-            return false
-        }
-        return true
     }
 
 }

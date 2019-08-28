@@ -6,6 +6,7 @@ import android.util.Log
 import androidx.core.app.JobIntentService
 import com.google.android.gms.location.Geofence
 import com.google.android.gms.location.GeofencingEvent
+import com.jackson.foo.mygeofencing.model.MyGeofencing
 
 class GeofenceTransitionsJobIntentService : JobIntentService() {
 
@@ -38,8 +39,18 @@ class GeofenceTransitionsJobIntentService : JobIntentService() {
 
     private fun handleEvent(event: GeofencingEvent) {
         if (event.geofenceTransition == Geofence.GEOFENCE_TRANSITION_ENTER) {
-
+            val myGeofencing = getCurrentGeo(event.triggeringGeofences)
+            val message = myGeofencing?.message
+            val latLng = myGeofencing?.latLng
+            if (message != null && latLng != null) {
+                sendNotification(this, message, latLng)
+            }
         }
+    }
+
+    private fun getCurrentGeo(triggeringGeofences: List<Geofence>): MyGeofencing? {
+        val firstGeofence = triggeringGeofences[0]
+        return (application as MyGeofencingApp).getRepository().get(firstGeofence.requestId)
     }
 
 }

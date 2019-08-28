@@ -100,7 +100,7 @@ fun sendNotification(context: Context, message: String, latLng: LatLng) {
 
     if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O
         && notificationManager.getNotificationChannel(NOTIFICATION_CHANNEL_ID) == null) {
-        val name = context.getString(R.string.app_name)
+        val name =  context.getString(R.string.app_name)
         val channel = NotificationChannel(NOTIFICATION_CHANNEL_ID,
             name,
             NotificationManager.IMPORTANCE_DEFAULT)
@@ -118,7 +118,7 @@ fun sendNotification(context: Context, message: String, latLng: LatLng) {
 
     val notification = NotificationCompat.Builder(context, NOTIFICATION_CHANNEL_ID)
         .setSmallIcon(R.mipmap.ic_launcher)
-        .setContentTitle(message)
+        .setContentTitle("You are nearby ".plus(message))
         .setContentIntent(notificationPendingIntent)
         .setAutoCancel(true)
         .setDefaults(Notification.DEFAULT_ALL)
