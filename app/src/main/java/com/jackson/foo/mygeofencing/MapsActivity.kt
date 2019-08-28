@@ -97,24 +97,7 @@ class MapsActivity : BaseActivity(), OnMapReadyCallback, GoogleMap.OnMyLocationB
                 MY_LOCATION_REQUEST_CODE
             )
         } else {
-            displayLocationSettingsRequest(this).addOnSuccessListener { locationSettingsResponse ->
-                fusedLocationClient.lastLocation.addOnSuccessListener {
-                    initialPetronasStation(MyLocation(it.latitude, it.longitude))
-                }.addOnFailureListener {
-                    initialPetronasStation(MyLocation(3.1138174, 101.7242323))
-                }
-            }.addOnFailureListener { exception ->
-                if (exception is ResolvableApiException) {
-                    try {
-                        startIntentSenderForResult(
-                            exception.resolution.intentSender,
-                            MY_PERMISSIONS_REQUEST_ACCESS_LOCATION, null, 0, 0, 0, null
-                        )
-                    } catch (sendEx: IntentSender.SendIntentException) {
-                        // Ignore the error.
-                    }
-                }
-            }
+            checkLocationEnabled()
         }
     }
 
@@ -137,6 +120,7 @@ class MapsActivity : BaseActivity(), OnMapReadyCallback, GoogleMap.OnMyLocationB
     ) {
         if (requestCode == MY_LOCATION_REQUEST_CODE) {
             onMapAndPermissionReady()
+            checkLocationEnabled()
         }
     }
 
@@ -211,6 +195,15 @@ class MapsActivity : BaseActivity(), OnMapReadyCallback, GoogleMap.OnMyLocationB
         }
 
         showAllGeo()
+
+        centerCamera()
+    }
+
+    private fun centerCamera() {
+        if (intent.extras != null && intent.extras!!.containsKey(EXTRA_LAT_LNG)) {
+            val latLng = intent.extras!!.get(EXTRA_LAT_LNG) as LatLng
+            mMap.moveCamera(CameraUpdateFactory.newLatLngZoom(latLng, 15f))
+        }
     }
 
     private fun initialPetronasStation(location: MyLocation) {
@@ -269,6 +262,27 @@ class MapsActivity : BaseActivity(), OnMapReadyCallback, GoogleMap.OnMyLocationB
             clear()
             for (myGeo in getRepository().getAll()) {
                 showReminderInMap(this@MapsActivity, this, myGeo)
+            }
+        }
+    }
+
+    private fun checkLocationEnabled() {
+        displayLocationSettingsRequest(this).addOnSuccessListener { locationSettingsResponse ->
+            fusedLocationClient.lastLocation.addOnSuccessListener {
+                initialPetronasStation(MyLocation(it.latitude, it.longitude))
+            }.addOnFailureListener {
+                initialPetronasStation(MyLocation(3.1138174, 101.7242323))
+            }
+        }.addOnFailureListener { exception ->
+            if (exception is ResolvableApiException) {
+                try {
+                    startIntentSenderForResult(
+                        exception.resolution.intentSender,
+                        MY_PERMISSIONS_REQUEST_ACCESS_LOCATION, null, 0, 0, 0, null
+                    )
+                } catch (sendEx: IntentSender.SendIntentException) {
+                    // Ignore the error.
+                }
             }
         }
     }
